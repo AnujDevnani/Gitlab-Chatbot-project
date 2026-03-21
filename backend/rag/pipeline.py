@@ -77,10 +77,11 @@ class RAGPipeline:
     def ensure_ready(self) -> None:
         if self._ready:
             return
+        logger.info("INDEX_DIR is: %s", INDEX_DIR)
+        logger.info("Index exists: %s", self._store.exists())
         if not self._store.load():
             self.build_index()
         self._ready = True
-
     # ── Querying ──────────────────────────────────────────────────────────
 
     def query(self, question: str) -> dict[str, Any]:
