@@ -1,0 +1,22 @@
+# render.yaml — Deploy to Render (render.com) with one click
+# Push to GitHub, connect repo on render.com, it reads this file automatically.
+
+services:
+  - type: web
+    name: gitlab-handbook-ai
+    runtime: python
+    buildCommand: |
+      pip install -r backend/requirements.txt
+      cd backend && python -c "from rag.pipeline import RAGPipeline; p=RAGPipeline(); p.build_index()"
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false          # Set manually in Render dashboard
+      - key: INDEX_DIR
+        value: /opt/render/project/src/data/index
+      - key: PYTHON_VERSION
+        value: "3.11"
+    disk:
+      name: index-store
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1

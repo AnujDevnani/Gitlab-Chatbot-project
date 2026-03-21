@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitLab Handbook AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F0EB;--sb:#ECEAE4;--brd:rgba(0,0,0,.08);--brd2:rgba(0,0,0,.14);
+  --txt:#1A1915;--txt2:#6B6860;--txt3:#B0AEA8;
+  --org:#CC4B00;--org2:#D4622A;
+  --card:#FDFCF9;--inp:#FFFFFF;
+  --chip:rgba(0,0,0,.05);--chip2:rgba(0,0,0,.09);
+  --r:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;overflow:hidden}
+
+/* APP */
+#app{display:flex;height:100vh}
+
+/* SIDEBAR */
+#sb{
+  width:260px;flex-shrink:0;
+  background:var(--sb);border-right:1px solid var(--brd);
+  display:flex;flex-direction:column;
+  animation:slideL .4s cubic-bezier(.16,1,.3,1) both;
+  transition:width .3s cubic-bezier(.16,1,.3,1),opacity .3s;
+}
+@keyframes slideL{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+
+.sb-top{padding:16px 14px 12px;display:flex;align-items:center;justify-content:space-between}
+.sb-brand-row{display:flex;align-items:center;gap:8px}
+.sb-icon{color:var(--org)}
+.sb-icon svg{width:20px;height:20px;display:block}
+.sb-name{font-size:.88rem;font-weight:500;color:var(--txt);letter-spacing:-.015em}
+.sb-toggle{
+  width:26px;height:26px;border-radius:7px;border:none;
+  background:transparent;cursor:pointer;color:var(--txt2);
+  display:flex;align-items:center;justify-content:center;transition:background .15s;
+}
+.sb-toggle:hover{background:var(--chip2)}
+.sb-toggle svg{width:15px;height:15px}
+
+.sb-new{
+  margin:0 10px 14px;width:calc(100% - 20px);
+  display:flex;align-items:center;gap:7px;padding:7px 11px;
+  border-radius:8px;border:none;background:transparent;
+  font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--txt2);
+  cursor:pointer;transition:background .15s;
+}
+.sb-new:hover{background:var(--chip2);color:var(--txt)}
+.sb-new svg{width:14px;height:14px;flex-shrink:0}
+
+.sb-nav{padding:0 10px}
+.sb-ni{
+  display:flex;align-items:center;gap:8px;padding:7px 9px;
+  border-radius:8px;font-size:.8rem;color:var(--txt2);
+  cursor:pointer;transition:background .15s;margin-bottom:2px;
+  border:none;background:transparent;width:100%;font-family:'DM Sans',sans-serif;
+}
+.sb-ni:hover{background:var(--chip2);color:var(--txt)}
+.sb-ni svg{width:14px;height:14px;flex-shrink:0;opacity:.65}
+
+.sb-div{height:1px;background:var(--brd);margin:10px 14px}
+.sb-sec{font-size:.66rem;font-weight:500;color:var(--txt3);letter-spacing:.08em;padding:0 20px 6px;text-transform:uppercase}
+
+.sb-hist{flex:1;overflow-y:auto;padding:0 10px}
+.sb-hist::-webkit-scrollbar{width:3px}
+.sb-hist::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:4px}
+.sb-hi{
+  padding:6px 9px;border-radius:7px;font-size:.77rem;color:var(--txt2);
+  cursor:pointer;transition:background .15s;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;margin-bottom:1px;
+  border:none;background:transparent;width:100%;text-align:left;
+  font-family:'DM Sans',sans-serif;
+}
+.sb-hi:hover{background:var(--chip2);color:var(--txt)}
+.sb-hi.on{background:var(--chip2);color:var(--txt)}
+
+/* Status pill */
+.sb-status-section{padding:0 14px 10px}
+.sb-status-pill{
+  display:flex;align-items:center;gap:6px;padding:7px 10px;
+  border-radius:8px;background:rgba(204,75,0,.06);
+  border:1px solid rgba(204,75,0,.12);font-size:.7rem;color:var(--org2);
+}
+.sb-status-pill svg{width:12px;height:12px;flex-shrink:0}
+#status-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--org);
+  flex-shrink:0;animation:pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.sb-foot{padding:10px 14px;border-top:1px solid var(--brd)}
+.sb-user{display:flex;align-items:center;gap:8px;padding:5px;border-radius:8px;cursor:pointer;transition:background .15s}
+.sb-user:hover{background:var(--chip2)}
+.sb-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--org),var(--org2));display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:600;color:#fff;flex-shrink:0}
+.sb-uname{font-size:.78rem;font-weight:500;color:var(--txt)}
+.sb-uplan{font-size:.66rem;color:var(--txt3)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;animation:fadeIn .45s ease both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+#scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 0 16px}
+#scroll::-webkit-scrollbar{width:4px}
+#scroll::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:4px}
+
+/* GREETING */
+#greet{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:calc(100vh - 160px);padding:0 28px;text-align:center;
+  animation:greetIn .7s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes greetIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+.greet-row{display:flex;align-items:center;gap:12px;margin-bottom:44px}
+.greet-icon{color:var(--org);animation:spinIcon 9s linear infinite}
+.greet-icon svg{width:36px;height:36px;display:block}
+@keyframes spinIcon{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.greet-h{font-family:'Crimson Pro',serif;font-size:2.9rem;font-weight:400;color:var(--txt);letter-spacing:-.02em;line-height:1}
+
+/* INPUT CARD (greeting) */
+.ic{
+  width:100%;max-width:640px;background:var(--inp);
+  border:1px solid var(--brd2);border-radius:var(--r);
+  box-shadow:0 2px 12px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04);
+  overflow:hidden;margin-bottom:20px;
+  transition:box-shadow .25s,border-color .25s;
+}
+.ic:focus-within{box-shadow:0 4px 24px rgba(0,0,0,.1);border-color:rgba(0,0,0,.2)}
+#ta-g{
+  width:100%;background:transparent;border:none;outline:none;
+  font-family:'DM Sans',sans-serif;font-size:.93rem;color:var(--txt);
+  line-height:1.55;resize:none;min-height:54px;max-height:180px;
+  padding:17px 18px 7px;caret-color:var(--org);overflow-y:auto;
+}
+#ta-g::placeholder{color:var(--txt3)}
+#ta-g::-webkit-scrollbar{display:none}
+.ic-bot{display:flex;align-items:center;justify-content:space-between;padding:7px 11px 9px}
+.ic-l{display:flex;align-items:center;gap:3px}
+.ic-btn{
+  width:28px;height:28px;border-radius:7px;background:transparent;
+  border:none;cursor:pointer;color:var(--txt2);
+  display:flex;align-items:center;justify-content:center;transition:background .15s;
+}
+.ic-btn:hover{background:var(--chip2)}
+.ic-btn svg{width:14px;height:14px}
+.ic-r{display:flex;align-items:center;gap:7px}
+.ic-tag{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--txt2);background:var(--chip);border:none;border-radius:6px;padding:3px 7px}
+#send-g{
+  width:28px;height:28px;border-radius:7px;
+  background:var(--org);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(204,75,0,.28);
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s,opacity .2s;
+}
+#send-g:hover{transform:scale(1.1);box-shadow:0 3px 12px rgba(204,75,0,.42)}
+#send-g:active{transform:scale(.92)}
+#send-g:disabled{opacity:.3;cursor:not-allowed;transform:none}
+#send-g svg{fill:white;width:12px;height:12px}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:540px;animation:greetIn .7s ease .25s both}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  background:transparent;border:1px solid var(--brd2);
+  border-radius:100px;padding:7px 15px;
+  font-family:'DM Sans',sans-serif;font-size:.77rem;color:var(--txt2);
+  cursor:pointer;white-space:nowrap;
+  transition:all .2s cubic-bezier(.16,1,.3,1);
+}
+.chip:hover{background:var(--chip2);color:var(--txt);border-color:rgba(0,0,0,.2);transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08)}
+.chip:active{transform:translateY(0) scale(.97)}
+.chip svg{width:12px;height:12px;opacity:.55}
+
+/* CHAT */
+#chat{display:none;padding:0}
+.chat-w{max-width:660px;margin:0 auto;padding:0 24px}
+
+.mu{display:flex;justify-content:flex-end;margin:18px 0 4px;animation:mIn .28s ease both}
+.mub{
+  background:var(--chip);border:1px solid var(--brd);
+  border-radius:16px 16px 4px 16px;
+  padding:10px 15px;max-width:72%;
+  font-size:.89rem;color:var(--txt);line-height:1.6;
+}
+.mb{display:flex;gap:11px;margin:7px 0 2px;animation:mIn .28s ease both}
+.bav{width:24px;height:24px;flex-shrink:0;color:var(--org);margin-top:2px}
+.bav svg{width:24px;height:24px;display:block}
+.bbd{flex:1;min-width:0}
+.bbl{font-size:.65rem;font-weight:500;color:var(--txt2);margin-bottom:6px;letter-spacing:.02em}
+.btx{font-size:.9rem;color:var(--txt);line-height:1.84}
+.btx p{margin-bottom:10px}.btx p:last-child{margin:0}
+.btx strong{font-weight:600}
+
+.cur{display:inline-block;width:2px;height:.88em;background:var(--org);margin-left:1px;vertical-align:text-bottom;animation:cBlink .75s step-end infinite}
+@keyframes cBlink{50%{opacity:0}}
+
+.bm{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px;align-items:center}
+.bdg{font-family:'DM Mono',monospace;font-size:.58rem;font-weight:500;padding:2px 8px;border-radius:20px}
+.bHigh  {background:#EDFBF4;color:#1A7A4A;border:1px solid #BAF0D0}
+.bMedium{background:#FEF9EC;color:#8A6200;border:1px solid #F5DFA0}
+.bLow   {background:#FEF0F0;color:#C0262A;border:1px solid #F5C0C0}
+.sc{font-size:.66rem;color:var(--txt2);background:var(--chip);border:1px solid var(--brd);border-radius:20px;padding:2px 9px;text-decoration:none;display:inline-block;transition:background .15s,color .15s}
+.sc:hover{background:var(--chip2);color:var(--txt)}
+
+.mdiv{height:1px;background:var(--brd);margin:16px 0 0 35px}
+
+.tw{display:flex;gap:11px;margin:7px 0;animation:mIn .25s ease both}
+.td{display:flex;gap:4px;align-items:center;padding-top:3px}
+.td span{width:6px;height:6px;border-radius:50%;background:var(--brd2);animation:tB 1.4s ease-in-out infinite}
+.td span:nth-child(2){animation-delay:.15s}.td span:nth-child(3){animation-delay:.3s}
+@keyframes tB{0%,80%,100%{transform:translateY(0);background:var(--brd2)}40%{transform:translateY(-6px);background:var(--org)}}
+
+@keyframes mIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* BOTTOM BAR */
+#bbar{flex-shrink:0;padding:11px 24px 17px;background:rgba(242,240,235,.93);backdrop-filter:blur(16px);border-top:1px solid var(--brd);display:none}
+.bar-w{max-width:660px;margin:0 auto}
+.bar-c{background:var(--inp);border:1px solid var(--brd2);border-radius:var(--r);box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;transition:box-shadow .25s,border-color .25s}
+.bar-c:focus-within{box-shadow:0 4px 20px rgba(0,0,0,.1);border-color:rgba(0,0,0,.2)}
+#ta-c{
+  width:100%;background:transparent;border:none;outline:none;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--txt);
+  line-height:1.55;resize:none;min-height:46px;max-height:160px;
+  padding:13px 16px 5px;caret-color:var(--org);overflow-y:auto;
+}
+#ta-c::placeholder{color:var(--txt3)}
+#ta-c::-webkit-scrollbar{display:none}
+.bb-bot{display:flex;align-items:center;justify-content:space-between;padding:5px 9px 7px}
+.bb-l{display:flex;align-items:center;gap:3px}
+.bb-btn{width:26px;height:26px;border-radius:6px;background:transparent;border:none;cursor:pointer;color:var(--txt2);display:flex;align-items:center;justify-content:center;transition:background .15s;font-family:'DM Mono',monospace;font-size:.62rem}
+.bb-btn:hover{background:var(--chip2)}
+.bb-btn svg{width:13px;height:13px}
+#send-c{width:26px;height:26px;border-radius:7px;background:var(--org);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(204,75,0,.28);transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s,opacity .2s}
+#send-c:hover{transform:scale(1.1);box-shadow:0 3px 12px rgba(204,75,0,.42)}
+#send-c:active{transform:scale(.92)}
+#send-c:disabled{opacity:.3;cursor:not-allowed;transform:none}
+#send-c svg{fill:white;width:11px;height:11px}
+.bar-hint{text-align:center;margin-top:7px;font-size:.6rem;color:var(--txt3);font-family:'DM Mono',monospace}
+
+/* ERROR TOAST */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#1A1915;color:#fff;font-size:.78rem;padding:9px 18px;
+  border-radius:9px;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;z-index:999;
+  font-family:'DM Sans',sans-serif;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Responsive */
+@media(max-width:600px){
+  #sb{display:none}
+  .greet-h{font-size:2rem}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SIDEBAR -->
+<div id="sb">
+  <div class="sb-top">
+    <div class="sb-brand-row">
+      <div class="sb-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.285 1.046L8.287 9.74H.698l6.543 4.753-2.498 7.699 6.543-4.753 6.542 4.753-2.498-7.7 6.543-4.752h-7.59z"/></svg></div>
+      <span class="sb-name">GitLab AI</span>
+    </div>
+    <button class="sb-toggle" onclick="toggleSB()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button>
+  </div>
+
+  <button class="sb-new" onclick="newChat()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    New chat
+  </button>
+
+  <div class="sb-nav">
+    <button class="sb-ni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Search history</button>
+  </div>
+
+  <div class="sb-div"></div>
+  <div class="sb-sec">Recents</div>
+  <div class="sb-hist" id="hist">
+    <button class="sb-hi on">GitLab Handbook Chat</button>
+  </div>
+
+  <div class="sb-div"></div>
+  <div class="sb-status-section">
+    <div class="sb-status-pill">
+      <div id="status-dot"></div>
+      <span id="status-txt">RAG · FAISS · Claude Sonnet</span>
+    </div>
+  </div>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-av">GL</div>
+      <div><div class="sb-uname">GitLab User</div><div class="sb-uplan">Handbook AI</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="scroll">
+
+    <!-- GREETING -->
+    <div id="greet">
+      <div class="greet-row">
+        <div class="greet-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.285 1.046L8.287 9.74H.698l6.543 4.753-2.498 7.699 6.543-4.753 6.542 4.753-2.498-7.7 6.543-4.752h-7.59z"/></svg></div>
+        <div class="greet-h" id="gm">Good morning</div>
+      </div>
+
+      <div class="ic">
+        <textarea id="ta-g" placeholder="Ask anything about GitLab…" rows="1"></textarea>
+        <div class="ic-bot">
+          <div class="ic-l">
+            <button class="ic-btn" title="Attach file (coming soon)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
+          </div>
+          <div class="ic-r">
+            <span class="ic-tag">RAG · LIVE</span>
+            <button id="send-g" onclick="sendG()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chips">
+        <button class="chip" onclick="qa('What are GitLab\'s core values?')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>GitLab values</button>
+        <button class="chip" onclick="qa('How does GitLab approach remote work?')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20"/></svg>Remote work</button>
+        <button class="chip" onclick="qa('What is GitLab\'s AI product direction?')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>AI direction</button>
+        <button class="chip" onclick="qa('What is the GitLab hiring process?')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Hiring process</button>
+        <button class="chip" onclick="qa('What is the GitLab Handbook?')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>The Handbook</button>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="chat"><div class="chat-w" id="msgs"></div></div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div id="bbar">
+    <div class="bar-w">
+      <div class="bar-c">
+        <textarea id="ta-c" placeholder="Reply…" rows="1"></textarea>
+        <div class="bb-bot">
+          <div class="bb-l">
+            <span class="bb-btn" style="cursor:default;font-size:.62rem;opacity:.6">RAG · LIVE</span>
+          </div>
+          <button id="send-c" onclick="sendC()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+        </div>
+      </div>
+      <div class="bar-hint">GitLab Handbook AI · RAG + FAISS semantic search · Claude Sonnet</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ERROR TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── Config ──────────────────────────────────────────────────────────── */
+// In production (same origin), /ask works directly.
+// For local dev with separate backend, set this:
+const API_BASE = window.API_BASE || '';
+
+/* ── Greeting ─────────────────────────────────────────────────────────── */
+const h = new Date().getHours();
+document.getElementById('gm').textContent =
+  h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+
+/* ── Resize textareas ─────────────────────────────────────────────────── */
+function rsz(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,180)+'px'; }
+document.getElementById('ta-g').addEventListener('input',function(){ rsz(this); });
+document.getElementById('ta-c').addEventListener('input',function(){ rsz(this); });
+document.getElementById('ta-g').addEventListener('keydown', e=>{
+  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendG(); }
+});
+document.getElementById('ta-c').addEventListener('keydown', e=>{
+  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendC(); }
+});
+
+function qa(q){ document.getElementById('ta-g').value=q; rsz(document.getElementById('ta-g')); sendG(); }
+
+/* ── State ────────────────────────────────────────────────────────────── */
+const scroll = document.getElementById('scroll');
+const msgs   = document.getElementById('msgs');
+let inChat   = false;
+let busy     = false;
+let convId   = null;
+
+/* ── Send helpers ─────────────────────────────────────────────────────── */
+function sendG(){
+  const v = document.getElementById('ta-g').value.trim();
+  if(!v || busy) return;
+  document.getElementById('ta-g').value = '';
+  rsz(document.getElementById('ta-g'));
+  toChat(); process(v);
+}
+function sendC(){
+  const v = document.getElementById('ta-c').value.trim();
+  if(!v || busy) return;
+  document.getElementById('ta-c').value = '';
+  document.getElementById('ta-c').style.height = 'auto';
+  process(v);
+}
+
+/* ── View transitions ─────────────────────────────────────────────────── */
+function toChat(){
+  if(inChat) return; inChat = true;
+  const g = document.getElementById('greet');
+  g.style.transition = 'opacity .3s ease,transform .3s ease';
+  g.style.opacity = '0'; g.style.transform = 'translateY(-10px) scale(.98)';
+  setTimeout(()=>{ g.style.display='none'; }, 300);
+  document.getElementById('chat').style.display = 'block';
+  document.getElementById('bbar').style.display = 'block';
+  addHist('New conversation');
+  setTimeout(()=> document.getElementById('ta-c').focus(), 310);
+}
+
+function addHist(lbl){
+  const list = document.getElementById('hist');
+  list.querySelectorAll('.sb-hi').forEach(i=>i.classList.remove('on'));
+  const b = document.createElement('button'); b.className='sb-hi on'; b.textContent=lbl;
+  list.prepend(b);
+}
+
+function newChat(){
+  if(!inChat) return; inChat=false; convId=null;
+  document.getElementById('chat').style.display='none';
+  document.getElementById('bbar').style.display='none';
+  msgs.innerHTML='';
+  const g=document.getElementById('greet');
+  g.style.display='flex'; g.style.opacity='1'; g.style.transform='none';
+  setTimeout(()=> document.getElementById('ta-g').focus(), 80);
+}
+
+function toggleSB(){
+  const s = document.getElementById('sb');
+  if(s.style.width==='0px'){ s.style.width='260px'; s.style.opacity='1'; s.style.overflow='visible'; }
+  else{ s.style.width='0px'; s.style.opacity='0'; s.style.overflow='hidden'; }
+}
+
+/* ── Core process flow ────────────────────────────────────────────────── */
+function process(q){
+  busy = true;
+  setSendDisabled(true);
+  addU(q);
+  const tid = addThink();
+
+  callAPI(q)
+    .then(r=>{
+      rmEl(tid);
+      convId = r.conversation_id || convId;
+      stream(r.answer, r.confidence, r.sources);
+    })
+    .catch(err=>{
+      rmEl(tid);
+      showToast(err.message || 'Something went wrong. Please try again.');
+      stream('Sorry, I ran into an error. Please try again.', 0, []);
+    });
+}
+
+/* ── DOM helpers ──────────────────────────────────────────────────────── */
+function addU(t){
+  const d=mk('div','mu'); d.innerHTML=`<div class="mub">${esc(t)}</div>`;
+  msgs.appendChild(d); bot();
+}
+
+function addThink(){
+  const id='tk'+Date.now(), d=mk('div','tw'); d.id=id;
+  d.innerHTML=`
+    <div class="bav"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.285 1.046L8.287 9.74H.698l6.543 4.753-2.498 7.699 6.543-4.753 6.542 4.753-2.498-7.7 6.543-4.752h-7.59z"/></svg></div>
+    <div class="bbd">
+      <div class="bbl">HANDBOOK AI</div>
+      <div class="td"><span></span><span></span><span></span></div>
+    </div>`;
+  msgs.appendChild(d); bot(); return id;
+}
+
+function stream(text, conf, sources){
+  const cl = conf>=.7 ? 'High' : conf>=.45 ? 'Medium' : 'Low';
+  const srcs = (sources||[])
+    .map(s=>`<a class="sc" href="${s.url}" target="_blank" rel="noopener">📄 ${esc(s.title)}</a>`)
+    .join('');
+  const meta = `<div class="bm"><span class="bdg b${cl}">${cl} confidence · ${Math.round(conf*100)}%</span>${srcs}</div>`;
+
+  const wrap = mk('div','mb');
+  wrap.innerHTML=`
+    <div class="bav"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.285 1.046L8.287 9.74H.698l6.543 4.753-2.498 7.699 6.543-4.753 6.542 4.753-2.498-7.7 6.543-4.752h-7.59z"/></svg></div>
+    <div class="bbd"><div class="bbl">HANDBOOK AI</div><div class="btx" id="_t"></div></div>`;
+  msgs.appendChild(wrap);
+
+  const tgt = wrap.querySelector('#_t'); tgt.removeAttribute('id');
+  const parsed = text
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n\n/g,'</p><p>');
+  const words = (`<p>${parsed}</p>`).split(' ');
+  let i=0;
+  const cur=mk('span','cur'); tgt.appendChild(cur);
+  const iv=setInterval(()=>{
+    if(i>=words.length){
+      clearInterval(iv); cur.remove();
+      tgt.insertAdjacentHTML('beforeend', meta);
+      wrap.after(mk('div','mdiv'));
+      busy=false; setSendDisabled(false); bot(); return;
+    }
+    cur.insertAdjacentHTML('beforebegin', words[i]+(i<words.length-1?' ':''));
+    i++; if(i%6===0) bot();
+  }, 18);
+}
+
+/* ── API call ─────────────────────────────────────────────────────────── */
+async function callAPI(q){
+  const body = { question: q };
+  if(convId) body.conversation_id = convId;
+
+  const res = await fetch(`${API_BASE}/ask`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if(!res.ok){
+    let msg = `Server error ${res.status}`;
+    try{ const j=await res.json(); msg=j.detail||msg; } catch(e){}
+    throw new Error(msg);
+  }
+  return res.json();
+}
+
+/* ── Utilities ────────────────────────────────────────────────────────── */
+function setSendDisabled(v){
+  document.getElementById('send-g').disabled = v;
+  document.getElementById('send-c').disabled = v;
+}
+const mk  = (t,c)=>{ const e=document.createElement(t); if(c)e.className=c; return e; };
+const bot = ()=>{ scroll.scrollTop=scroll.scrollHeight; };
+const esc = t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function rmEl(id){ const e=document.getElementById(id); if(e)e.remove(); }
+
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>
