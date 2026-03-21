@@ -30,8 +30,8 @@ User question
       │  chunks + question
       ▼
 ┌─────────────┐
-│  Claude      │  ← system prompt grounds it on GitLab context
-│  Sonnet      │
+│  Groq       │  ← system prompt grounds it on GitLab context
+│             │
 └─────────────┘
       │
       ▼
@@ -44,7 +44,7 @@ User question
 | API | FastAPI + Uvicorn |
 | Embeddings | sentence-transformers/all-MiniLM-L6-v2 |
 | Vector DB | FAISS (faiss-cpu) |
-| LLM | Anthropic Claude Sonnet |
+| LLM | llama-3.1-8b-instant |
 | Scraping | requests + BeautifulSoup4 |
 | Frontend | Vanilla HTML/CSS/JS (zero dependencies) |
 
@@ -81,7 +81,7 @@ gitlab-handbook-ai/
 
 ### Prerequisites
 - Python 3.10+
-- An [Anthropic API key](https://console.anthropic.com)
+- An [Groq API key](https://console.groq.com/))
 
 ### 1. Clone & Install
 
@@ -103,7 +103,7 @@ cp .env.example .env
 
 Open `.env` and set your key:
 ```
-ANTHROPIC_API_KEY=sk-ant-...
+Groq_API_KEY=sk-ant-...
 ```
 
 ### 3. Build the Index
@@ -149,7 +149,7 @@ Render is the easiest option: persistent disk for the index, automatic deploys o
 4. Render auto-detects `render.yaml` — click **Apply**
 5. In the Render dashboard → **Environment** → add:
    ```
-   ANTHROPIC_API_KEY = sk-ant-...
+   Groq_API_KEY = sk-ant-...
    ```
 6. Click **Deploy** — your URL will be `https://gitlab-handbook-ai.onrender.com`
 
@@ -164,7 +164,7 @@ docker build -t gitlab-handbook-ai .
 # Run (index builds on first startup if not cached)
 docker run -d \
   -p 8000:8000 \
-  -e ANTHROPIC_API_KEY=sk-ant-... \
+  -e grok_API_KEY=sk-ant-... \
   -v $(pwd)/data:/app/data \
   --name handbook-ai \
   gitlab-handbook-ai
