@@ -79,6 +79,8 @@ class RAGPipeline:
             return
         logger.info("INDEX_DIR is: %s", INDEX_DIR)
         logger.info("Index exists: %s", self._store.exists())
+        logger.info("Files in /opt/render/project/src: %s", os.listdir('/opt/render/project/src'))
+        logger.info("Files in /opt/render/project/src/data: %s", os.listdir('/opt/render/project/src/data') if os.path.exists('/opt/render/project/src/data') else 'NOT FOUND')
         if not self._store.load():
             self.build_index()
         self._ready = True
