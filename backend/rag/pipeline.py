@@ -53,7 +53,7 @@ class RAGPipeline:
             return
 
         logger.info("Starting full scrape + index build …")
-        chunks: list[TextChunk] = scrape_all(follow_links=True)
+        chunks: list[TextChunk] = scrape_all(follow_links=False)
 
         if not chunks:
             raise RuntimeError("Scraper returned 0 chunks. Check network access.")
