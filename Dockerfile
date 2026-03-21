@@ -11,10 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/ ./backend/
 COPY frontend/ ./frontend/
+COPY data/ ./data/
 
-# Build index during image build
 WORKDIR /app/backend
-RUN python -c "from rag.pipeline import RAGPipeline; p=RAGPipeline(); p.build_index(force=True)"
 
 EXPOSE 8000
 ENV PYTHONUNBUFFERED=1
