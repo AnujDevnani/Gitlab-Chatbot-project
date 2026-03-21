@@ -12,9 +12,6 @@ env/
 .env
 *.env
 
-# Index data (large binary files — rebuild on deploy)
-data/
-
 # OS
 .DS_Store
 Thumbs.db
